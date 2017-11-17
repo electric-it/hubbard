@@ -1,10 +1,41 @@
 hash: 067cf4675988375e288aed71e89aca329f696aab3e555e01354b17fc25155f22
-updated: 2017-11-17T08:34:54.735280675-05:00
+updated: 2017-11-17T11:37:25.628837255-05:00
 imports:
-- name: github.com/julienschmidt/httprouter
-  version: e1b9828bc9e5904baec057a154c09ca40fe7fae0
-- name: github.com/urfave/negroni
-  version: 5dbbc83f748fc3ad38585842b0aedab546d0ea1e
+- name: github.com/cssivision/reverseproxy
+  version: 8f5f9a046ce62f6f70b6e6cd045f5128fdfe95f8
+- name: github.com/golang/protobuf
+  version: 17ce1425424ab154092bbb43af630bd647f3bb0d
+  subpackages:
+  - proto
+- name: github.com/google/go-github
+  version: 471e67c93cdd36a5f7c9bba5d6d11665ba12147d
+  subpackages:
+  - github
+- name: github.com/google/go-querystring
+  version: 53e6ce116135b80d037921a7fdd5138cf32d7a8a
+  subpackages:
+  - query
+- name: github.com/pkg/errors
+  version: 645ef00459ed84a119197bfb8d8205042c6df63d
+- name: golang.org/x/net
+  version: 77922fe5b7fc5507bfefc11a116b758179e219f4
+  subpackages:
+  - context
+  - context/ctxhttp
+- name: golang.org/x/oauth2
+  version: 9ff8ebcc8e241d46f52ecc5bff0e5a2f2dbef402
+  subpackages:
+  - internal
+- name: google.golang.org/appengine
+  version: 9d8544a6b2c7df9cff240fcf92d7b2f59bc13416
+  subpackages:
+  - internal
+  - internal/base
+  - internal/datastore
+  - internal/log
+  - internal/remote_api
+  - internal/urlfetch
+  - urlfetch
 testImports:
 - name: github.com/davecgh/go-spew
   version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
