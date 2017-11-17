@@ -55,6 +55,6 @@ go run server.go
 * Single-line installation of Hubbard
 * Add support for YAML-based Viper configurations to manage multiple GH:E instances and authentication credentials by org / repo
 * Add a CLI using Cobra that lets you:
-* * manage configurations
-* * start/stop the service
-* * configure `/etc/hosts` to alias `localhost` to `hubbard` for more clarity
+  * manage configurations
+  * start/stop the service
+  * configure `/etc/hosts` to alias `localhost` to `hubbard` for more clarity
