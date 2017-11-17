@@ -28,8 +28,31 @@ This means that installing assets from `npm`, `pip`, `bundler` or any other pack
 management solution that supports compressed flat-file artifacts operates
 seamlessly.
 
+## Development
+
+Make sure you have [Glide](https://github.com/Masterminds/glide):
+
+```
+curl https://glide.sh/get | sh
+```
+
+Install your dependencies:
+
+```
+glide install
+```
+
+Run the server:
+
+```
+go run server.go
+```
+
 ## Future work
 
+* Actual tests instead of a TODO
+* Get Hubbard working as a background service
+* Single-line installation of Hubbard
 * Add support for YAML-based Viper configurations to manage multiple GH:E instances and authentication credentials by org / repo
 * Add a CLI using Cobra that lets you:
 * * manage configurations
