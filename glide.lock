@@ -1,5 +1,5 @@
 hash: 067cf4675988375e288aed71e89aca329f696aab3e555e01354b17fc25155f22
-updated: 2017-11-17T11:37:25.628837255-05:00
+updated: 2017-11-19T09:11:16.36841781-05:00
 imports:
 - name: github.com/cssivision/reverseproxy
   version: 8f5f9a046ce62f6f70b6e6cd045f5128fdfe95f8
@@ -15,6 +15,10 @@ imports:
   version: 53e6ce116135b80d037921a7fdd5138cf32d7a8a
   subpackages:
   - query
+- name: github.com/kardianos/osext
+  version: ae77be60afb1dcacde03767a8c37337fad28ac14
+- name: github.com/kardianos/service
+  version: 14a49b39b37b67e7c4d0f9df86ff005c55e539ff
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: golang.org/x/net
@@ -26,6 +30,14 @@ imports:
   version: 9ff8ebcc8e241d46f52ecc5bff0e5a2f2dbef402
   subpackages:
   - internal
+- name: golang.org/x/sys
+  version: 0ac51a24ef1c37380f98ba8b98f56e3bffd59850
+  subpackages:
+  - windows
+  - windows/registry
+  - windows/svc
+  - windows/svc/eventlog
+  - windows/svc/mgr
 - name: google.golang.org/appengine
   version: 9d8544a6b2c7df9cff240fcf92d7b2f59bc13416
   subpackages:
