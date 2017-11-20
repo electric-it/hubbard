@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -18,6 +19,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"golang.org/x/oauth2"
+	yaml "gopkg.in/yaml.v2"
 )
 
 var logger service.Logger
@@ -332,6 +334,9 @@ func runServerInForeground() {
 func main() {
 	cobra.OnInitialize(initConfig)
 	RootCmd.AddCommand(RunFgCmd)
+	ConfigureCmd.Flags().String("github-url", "", "URL of GitHub API")
+	ConfigureCmd.Flags().String("github-access-token", "", "The access token for the GitHub API")
+	RootCmd.AddCommand(ConfigureCmd)
 	RootCmd.Execute()
 }
 
@@ -353,6 +358,7 @@ func initConfig() {
 	}
 }
 
+// RunFgCmd lets us run in the foreground
 var RunFgCmd = &cobra.Command{
 	Use:   "run-fg",
 	Short: "Runs hubbard in the foreground",
@@ -360,6 +366,38 @@ var RunFgCmd = &cobra.Command{
 		logger = StdoutLogger{}
 		log.SetOutput(os.Stdout)
 		runServerInForeground()
+	},
+}
+
+type HubbardConfig struct {
+	GithubURL         string `yaml:"GITHUB_URL"`
+	GithubAccessToken string `yaml:"GITHUB_ACCESS_TOKEN"`
+}
+
+// ConfigureCmd lets us configure hubbard
+var ConfigureCmd = &cobra.Command{
+	Use:   "configure",
+	Short: "configures hubard",
+	Run: func(cmd *cobra.Command, args []string) {
+		viper.BindPFlag("github-url", cmd.Flags().Lookup("github-url"))
+		viper.BindPFlag("github-access-token", cmd.Flags().Lookup("github-access-token"))
+		url := viper.GetString("github-url")
+		if len(url) == 0 {
+			panic("Need to set flag --github-url!")
+		}
+
+		token := viper.GetString("github-access-token")
+		if len(token) == 0 {
+			panic("need to set flag --github-access-token!")
+		}
+		bytes, err := yaml.Marshal(&HubbardConfig{
+			GithubURL:         url,
+			GithubAccessToken: token,
+		})
+		if err != nil {
+			panic(err)
+		}
+		ioutil.WriteFile("/etc/hubbard/.hubbard.yml", bytes, 0644)
 	},
 }
 
