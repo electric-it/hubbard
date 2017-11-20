@@ -11,9 +11,31 @@ instances of GitHub: Enterprise.
 
 ## Configuration
 
-Set `GITHUB_URL` and `GITHUB_ACESS_TOKEN` when starting Hubbard.
+Set `GITHUB_URL` and `GITHUB_ACESS_TOKEN` before starting Hubbard.
 
-Start Hubbard with `go run server.go`.
+You can also control the URL and access token by writing the values to
+`/etc/hubbard/.hubbard.yml`.
+
+Start Hubbard with `go run hubbard.go`.
+
+## Installation
+
+```bash
+# Tap the keg
+$ brew tap secc/secc https://github.build.ge.com/SECC/homebrew-secc
+
+# Install Hubbard
+# Hubbard is a HEAD-only cookbook because we rely on authentication with GitHub
+$ brew install --HEAD hubbard
+```
+
+Homebrew will remind you to run the following:
+
+```bash
+$ hubbard configure --github-url=$YOUR_GITHUB_URL --github-access-token=$YOUR_GITHUB_ACCESS_TOKEN
+```
+
+Hubbard will now run as a service in the background, registered via Brew Services.
 
 ## Usage
 
@@ -33,7 +55,7 @@ seamlessly.
 Make sure you have [Glide](https://github.com/Masterminds/glide):
 
 ```
-curl https://glide.sh/get | sh
+brew install glide
 ```
 
 Install your dependencies:
@@ -45,16 +67,23 @@ glide install
 Run the server:
 
 ```
-go run server.go
+go run hubbard.go
 ```
+
+You should also commit your built binary:
+
+```
+go build hubbard.go
+```
+
+Why are we committing a build artifact?
+Many contexts where we want to install Hubbard may not necessarily have access
+to release assets.The whole idea behind Hubbard is to
+avoid bad behavior like this in the future. Here, we assume bit of complexity
+in one place so that this undesirable behavior doesn't propagate to
+all other projects.
 
 ## Future work
 
-* Actual tests instead of a TODO
-* Get Hubbard working as a background service
-* Single-line installation of Hubbard
+* Single-line installation of Hubbard on CI
 * Add support for YAML-based Viper configurations to manage multiple GH:E instances and authentication credentials by org / repo
-* Add a CLI using Cobra that lets you:
-  * manage configurations
-  * start/stop the service
-  * configure `/etc/hosts` to alias `localhost` to `hubbard` for more clarity
