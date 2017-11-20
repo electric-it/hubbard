@@ -19,12 +19,26 @@ import (
 
 var logger service.Logger
 
+type GithubHandlerInterface interface {
+	GithubURL() string
+	GithubAccessToken() (string, error)
+	GithubClient() (*github.Client, error)
+	ProbablyAuthenticate(r *http.Request) error
+	GetRelease(ctx context.Context, owner string, repo string, tag string) (*github.RepositoryRelease, error)
+	GetAssetList(ctx context.Context, owner string, repo string, release *github.RepositoryRelease) ([]*github.ReleaseAsset, error)
+	DownloadReleaseAsset(ctx context.Context, owner string, repo string, asset *github.ReleaseAsset) (rc io.ReadCloser, redirectURL string, err error)
+}
+
+// GithubHandler is designed to manage interactions with GitHub
+// it stores details about what GitHub instance to interact with, the correct
+// credentials, and a memoized client.
 type GithubHandler struct {
 	githubURL         string
 	githubAccessToken string
 	githubClient      *github.Client
 }
 
+// GithubClient makes sure we have a client instance with the correct credentials
 func (h *GithubHandler) GithubClient() (*github.Client, error) {
 	if h.githubClient == nil {
 		accessToken, err := h.GithubAccessToken()
@@ -46,6 +60,7 @@ func (h *GithubHandler) GithubClient() (*github.Client, error) {
 	return h.githubClient, nil
 }
 
+// GithubURL is a memoized accessor for retrieving the GitHub URL from the environment
 func (h *GithubHandler) GithubURL() string {
 	if len(h.githubURL) == 0 {
 		gh := os.Getenv("GITHUB_URL")
@@ -57,6 +72,7 @@ func (h *GithubHandler) GithubURL() string {
 	return h.githubURL
 }
 
+// GithubAccessToken makes sure we have an access token, will throw an error if it can't find one
 func (h *GithubHandler) GithubAccessToken() (string, error) {
 	if len(h.githubAccessToken) == 0 {
 		ghat := os.Getenv("GITHUB_ACCESS_TOKEN")
@@ -68,18 +84,21 @@ func (h *GithubHandler) GithubAccessToken() (string, error) {
 	return h.githubAccessToken, nil
 }
 
+// Authenticating a raw request requires headers for access token and format
 func authenticateRawRequest(r *http.Request, accessToken string) error {
 	r.Header.Add("Authorization", fmt.Sprintf("token %s", accessToken))
 	r.Header.Add("Accept", "application/vnd.github.v3.raw")
 	return nil
 }
 
+// Authenticating over HTTP just requires setting basic auth correctly
 func authenticateGitOverHTTP(r *http.Request, accessToken string) error {
 	logger.Infof("Adding basic auth to %s", r.RequestURI)
 	r.SetBasicAuth(accessToken, "x-oauth-basic")
 	return nil
 }
 
+// ProbablyAuthenticate will handle authentication for an HTTP request
 func (h *GithubHandler) ProbablyAuthenticate(r *http.Request) error {
 	accessToken, err := h.GithubAccessToken()
 	if err != nil {
@@ -98,6 +117,39 @@ func (h *GithubHandler) ProbablyAuthenticate(r *http.Request) error {
 	return nil
 }
 
+// GetRelease will retrieve information about a release from the GitHub API
+func (h *GithubHandler) GetRelease(ctx context.Context, owner string, repo string, tag string) (*github.RepositoryRelease, error) {
+	client, err := h.GithubClient()
+	if err != nil {
+		return nil, errors.Wrap(err, "couldn't get GitHub client when trying to grab release assets")
+	}
+
+	release, _, err := client.GetRepositories().GetReleaseByTag(ctx, owner, repo, tag)
+	return release, err
+}
+
+// GetAssetList will retrieve a list of repository release assets
+func (h *GithubHandler) GetAssetList(ctx context.Context, owner string, repo string, release *github.RepositoryRelease) ([]*github.ReleaseAsset, error) {
+	client, err := h.GithubClient()
+	if err != nil {
+		return nil, errors.Wrap(err, "couldn't get GitHub client when trying to grab asset list for release")
+	}
+	// if we have more than 50 release assets then idk what to tell you
+	listOpts := &github.ListOptions{Page: 1, PerPage: 50}
+	assets, _, err := client.GetRepositories().ListReleaseAssets(ctx, owner, repo, release.GetID(), listOpts)
+	return assets, err
+}
+
+// DownloadReleaseAsset wraps calls to GitHub client for easier testing
+func (h *GithubHandler) DownloadReleaseAsset(ctx context.Context, owner string, repo string, asset *github.ReleaseAsset) (rc io.ReadCloser, redirectURL string, err error) {
+	client, err := h.GithubClient()
+	if err != nil {
+		return nil, "", errors.Wrap(err, "couldn't get GitHub client when trying to download release asset")
+	}
+	return client.GetRepositories().DownloadReleaseAsset(ctx, owner, repo, asset.GetID())
+}
+
+// HandleReleaseAssets will download an authenticated release asset using the GitHub API
 func (h *GithubHandler) HandleReleaseAssets(w http.ResponseWriter, r *http.Request) (bool, error) {
 	// https://github.build.ge.com/212595461/private_test/releases/download/1.0/private_test.tar.gz
 	// $1 is the version, $2 is the asset name
@@ -110,19 +162,13 @@ func (h *GithubHandler) HandleReleaseAssets(w http.ResponseWriter, r *http.Reque
 		repo := submatches[2]
 		tag := submatches[3]
 		assetName := submatches[4]
-		client, err := h.GithubClient()
-		if err != nil {
-			return false, errors.Wrap(err, "couldn't get GitHub client when trying to grab release assets")
-		}
 		logger.Infof("getting release for tag %s/%s/%s matching %s", owner, repo, tag, r.RequestURI)
-		release, _, err := client.GetRepositories().GetReleaseByTag(ctx, owner, repo, tag)
+		release, err := h.GetRelease(ctx, owner, repo, tag)
 		if err != nil {
 			return false, errors.Wrap(err, "couldn't retrieve release for tag provided")
 		}
 		logger.Infof("INFO: getting assets for release release %s/%s/%d matching %s", owner, repo, release.GetID(), r.RequestURI)
-		// if we have more than 50 release assets then idk what to tell you
-		listOpts := &github.ListOptions{Page: 1, PerPage: 50}
-		assets, _, err := client.GetRepositories().ListReleaseAssets(ctx, owner, repo, release.GetID(), listOpts)
+		assets, err := h.GetAssetList(ctx, owner, repo, release)
 		if err != nil {
 			return false, errors.Wrap(err, "couldn't get list of assets for tag")
 		}
@@ -130,7 +176,7 @@ func (h *GithubHandler) HandleReleaseAssets(w http.ResponseWriter, r *http.Reque
 		for _, asset := range assets {
 			if asset.GetName() == assetName {
 				logger.Infof("INFO: retrieving release %s/%s/%d matching %s", owner, repo, asset.GetID(), r.RequestURI)
-				rc, redirectURL, err := client.GetRepositories().DownloadReleaseAsset(ctx, owner, repo, asset.GetID())
+				rc, redirectURL, err := h.DownloadReleaseAsset(ctx, owner, repo, asset)
 				if err != nil {
 					return false, errors.Wrap(err, "couldn't download release asset")
 				}
@@ -148,6 +194,7 @@ func (h *GithubHandler) HandleReleaseAssets(w http.ResponseWriter, r *http.Reque
 	return false, nil
 }
 
+// ProxyRequest will add authentication logic to a request and pass it to the correct GitHub URL
 func (h *GithubHandler) ProxyRequest(w http.ResponseWriter, r *http.Request) error {
 	logger.Infof("INFO: Proxying request %s to: %s", r.RequestURI, h.GithubURL())
 	err := h.ProbablyAuthenticate(r)
@@ -166,7 +213,8 @@ func (h *GithubHandler) ProxyRequest(w http.ResponseWriter, r *http.Request) err
 	return nil
 }
 
-func (h *GithubHandler) handleHTTP(w http.ResponseWriter, r *http.Request) {
+// HandleHTTP delegates retrieval of release assets or request proxying
+func (h *GithubHandler) HandleHTTP(w http.ResponseWriter, r *http.Request) {
 	logger.Infof("handling request: %s", r.RequestURI)
 
 	didHandleReleaseAssets, err := h.HandleReleaseAssets(w, r)
@@ -178,48 +226,64 @@ func (h *GithubHandler) handleHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type stdoutLogger struct{}
+// StdoutLogger implements thte service.Logger interface
+type StdoutLogger struct{}
 
-func (s stdoutLogger) Error(v ...interface{}) error {
+// Error logs an error
+func (s StdoutLogger) Error(v ...interface{}) error {
 	log.Println(fmt.Sprintf("ERROR: %s", v...))
 	return nil
 }
-func (s stdoutLogger) Warning(v ...interface{}) error {
+
+// Warning logs a warning
+func (s StdoutLogger) Warning(v ...interface{}) error {
 	log.Println(fmt.Sprintf("WARNING: %s", v...))
 	return nil
 }
-func (s stdoutLogger) Info(v ...interface{}) error {
+
+// Info logs at info level
+func (s StdoutLogger) Info(v ...interface{}) error {
 	log.Println(fmt.Sprintf("INFO: %s", v...))
 	return nil
 }
-func (s stdoutLogger) Errorf(format string, a ...interface{}) error {
+
+// Errorf logs an error with format
+func (s StdoutLogger) Errorf(format string, a ...interface{}) error {
 	log.Println(fmt.Sprintf("ERROR: %s", fmt.Sprintf(format, a...)))
 	return nil
 }
-func (s stdoutLogger) Warningf(format string, a ...interface{}) error {
+
+// Warningf logs a warning with format
+func (s StdoutLogger) Warningf(format string, a ...interface{}) error {
 	log.Println(fmt.Sprintf("WARNING: %s", fmt.Sprintf(format, a...)))
 	return nil
 }
-func (s stdoutLogger) Infof(format string, a ...interface{}) error {
+
+// Infof logs to info with format
+func (s StdoutLogger) Infof(format string, a ...interface{}) error {
 	log.Println(fmt.Sprintf("INFO: %s", fmt.Sprintf(format, a...)))
 	return nil
 }
 
-type program struct {
+// ProxyService lets us handle the proxy interaction as a service
+type ProxyService struct {
 	server *http.Server
 }
 
-func (p *program) Start(s service.Service) error {
+// Start will start the http server running
+func (p *ProxyService) Start(s service.Service) error {
 	// Start should not block. Do the actual work async.
 	go p.run()
 	return nil
 }
-func (p *program) run() {
+
+// logic for running the server in the background
+func (p *ProxyService) run() {
 	log.Println("INFO: Started Hubbard")
 	handler := &GithubHandler{}
 	p.server = &http.Server{
 		Addr:    ":41968",
-		Handler: http.HandlerFunc(handler.handleHTTP),
+		Handler: http.HandlerFunc(handler.HandleHTTP),
 	}
 	go func() {
 		if err := p.server.ListenAndServe(); err != nil {
@@ -228,7 +292,9 @@ func (p *program) run() {
 		}
 	}()
 }
-func (p *program) Stop(s service.Service) error {
+
+// Stop will let us stop the program by closing the server
+func (p *ProxyService) Stop(s service.Service) error {
 	return p.server.Close()
 }
 
@@ -238,7 +304,7 @@ func runService() {
 		DisplayName: "Hubbard",
 		Description: "Reverse proxy for authenticated private GitHub integration",
 	}
-	prg := &program{}
+	prg := &ProxyService{}
 	s, err := service.New(prg, svcConfig)
 	if err != nil {
 		log.Fatal(err)
@@ -256,14 +322,12 @@ func runService() {
 func runServerInForeground() {
 	log.Println("INFO: Started Hubbard")
 	handler := &GithubHandler{}
-	http.ListenAndServe(":41968", http.HandlerFunc(handler.handleHTTP))
+	http.ListenAndServe(":41968", http.HandlerFunc(handler.HandleHTTP))
 }
 
 func main() {
-	runInForeground := len(os.Getenv("HUBBARD_FG")) > 0
-
-	if runInForeground {
-		logger = stdoutLogger{}
+	if len(os.Getenv("HUBBARD_FG")) > 0 {
+		logger = StdoutLogger{}
 		log.SetOutput(os.Stdout)
 		runServerInForeground()
 	} else {

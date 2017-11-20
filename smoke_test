@@ -6,3 +6,4 @@ rm -rf private_test
 curl -v http://localhost:41968/raw/212595461/private_test/master/README.md
 
 wget http://localhost:41968/212595461/private_test/releases/download/1.0/private_test.tar.gz
+rm -rf private_test.tar.gz
