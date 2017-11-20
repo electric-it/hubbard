@@ -1,5 +1,5 @@
 hash: 067cf4675988375e288aed71e89aca329f696aab3e555e01354b17fc25155f22
-updated: 2017-11-20T15:27:31.25621217-05:00
+updated: 2017-11-20T15:58:41.038600072-05:00
 imports:
 - name: github.com/cssivision/reverseproxy
   version: 8f5f9a046ce62f6f70b6e6cd045f5128fdfe95f8
@@ -58,6 +58,29 @@ imports:
   version: 7aff26db30c1be810f9de5038ec5ef96ac41fd7c
 - name: github.com/spf13/viper
   version: 25b30aa063fc18e48662b86996252eabdcf2f0c7
+- name: golang.org/x/net
+  version: 77922fe5b7fc5507bfefc11a116b758179e219f4
+  subpackages:
+  - context
+  - context/ctxhttp
+- name: golang.org/x/oauth2
+  version: 9ff8ebcc8e241d46f52ecc5bff0e5a2f2dbef402
+  subpackages:
+  - internal
+- name: golang.org/x/sys
+  version: 44d42c0ec6e768c5809a6339bba8d068fc040978
+  subpackages:
+  - unix
+  - windows
+  - windows/registry
+  - windows/svc
+  - windows/svc/eventlog
+  - windows/svc/mgr
+- name: golang.org/x/text
+  version: 0887db544a52fc77813e33b903bf3c07ff45793b
+  subpackages:
+  - transform
+  - unicode/norm
 - name: google.golang.org/appengine
   version: 9d8544a6b2c7df9cff240fcf92d7b2f59bc13416
   subpackages:
