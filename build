@@ -1,0 +1,6 @@
+#!/bin/bash
+
+GOOS=linux GOARCH=amd64 go build -o hubbard_linux hubbard.go
+
+# todo: env vars?
+go build -o hubbard_osx hubbard.go

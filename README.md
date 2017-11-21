@@ -70,13 +70,13 @@ Run the server:
 go run hubbard.go
 ```
 
-You should also commit your built binary:
+You should also commit your built binaries:
 
 ```
-go build hubbard.go
+./build
 ```
 
-Why are we committing a build artifact?
+Why are we committing build artifacts?
 Many contexts where we want to install Hubbard may not necessarily have access
 to release assets.The whole idea behind Hubbard is to
 avoid bad behavior like this in the future. Here, we assume bit of complexity
