@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 # Registers hubbard as a service via init.d
 # To be run as sudo
 
