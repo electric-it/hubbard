@@ -1,0 +1,14 @@
+#!/bin/bash
+# Registers hubbard as a service via init.d
+# To be run as sudo
+
+cd "$(dirname "$0")"
+./hubbard configure --github-url=$GITHUB_URL --github-access-token=$GITHUB_ACCESS_TOKEN
+useradd hubbard --disabled-password
+chown hubbard hubbard
+chgrp hubbard hubbard
+cp hubbard /usr/bin/hubbard
+cp ./hubbard-service-def /etc/init.d/hubbard
+chmod +x /etc/init.d/hubbard
+update-rc.d hubbard defaults
+service hubbard start
