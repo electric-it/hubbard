@@ -5,7 +5,7 @@
 cd "$(dirname "$0")"
 chmod +x ./hubbard
 ./hubbard configure --github-url=$GITHUB_URL --github-access-token=$GITHUB_ACCESS_TOKEN
-useradd hubbard --disabled-password
+useradd hubbard --password ""
 chown hubbard hubbard
 chgrp hubbard hubbard
 cp hubbard /usr/bin/hubbard
