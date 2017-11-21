@@ -2,7 +2,7 @@
 # Registers hubbard as a service via init.d
 # To be run as sudo
 
-cd "$(dirname "$0")"
+cd "$(dirname ${BASH_SOURCE[0]})"
 chmod +x ./hubbard
 ./hubbard configure --github-url=$GITHUB_URL --github-access-token=$GITHUB_ACCESS_TOKEN
 useradd hubbard --password ""
