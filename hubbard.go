@@ -332,7 +332,6 @@ func runServerInForeground() {
 }
 
 func main() {
-	cobra.OnInitialize(initConfig)
 	RootCmd.AddCommand(RunFgCmd)
 	ConfigureCmd.Flags().String("github-url", "", "URL of GitHub API")
 	ConfigureCmd.Flags().String("github-access-token", "", "The access token for the GitHub API")
@@ -363,6 +362,7 @@ var RunFgCmd = &cobra.Command{
 	Use:   "run-fg",
 	Short: "Runs hubbard in the foreground",
 	Run: func(cmd *cobra.Command, args []string) {
+		initConfig()
 		logger = StdoutLogger{}
 		log.SetOutput(os.Stdout)
 		runServerInForeground()
