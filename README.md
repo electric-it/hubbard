@@ -13,6 +13,12 @@ instances of GitHub: Enterprise.
 
 Set `GITHUB_URL` and `GITHUB_ACESS_TOKEN` before starting Hubbard.
 
+The **Installation** section will provide guidelines for configuring
+a personal access token in GitHub.
+
+The GitHub URL is the URL of the GitHub instance you're working with.
+For instance, the build.GE GitHub URL is `https://github.build.ge.com`.
+
 You can also control the URL and access token by writing the values to
 `/etc/hubbard/.hubbard.yml`.
 
