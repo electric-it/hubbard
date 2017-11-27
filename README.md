@@ -19,7 +19,21 @@ You can also control the URL and access token by writing the values to
 Start Hubbard with `go run hubbard.go`.
 
 ## Installation
+First, you will need an access key. Go to the **Settings** page of
+the GitHub instance you plan to work with. From there, you should be able to
+view your **Personal Access Tokens**:
 
+![Personal Access Token](https://github.build.ge.com/SECC/hubbard/blob/master/doc/personal_access_token.png)
+
+You can then choose to **Generate a New Token**:
+
+![Generate New Token](https://github.build.ge.com/SECC/hubbard/blob/master/doc/generate_new_token.png)
+
+Select the permissions you believe are applicable. Once you've created the access
+token, you should record it in a text file or note so that you can use it for configuring
+Hubbard in the steps below.
+
+### OS X
 ```bash
 # Tap the keg
 $ brew tap secc/secc https://github.build.ge.com/SECC/homebrew-secc
@@ -36,6 +50,20 @@ $ hubbard configure --github-url=$YOUR_GITHUB_URL --github-access-token=$YOUR_GI
 ```
 
 Hubbard will now run as a service in the background, registered via Brew Services.
+
+### Linux
+Hubbard is also designed to work as a service in a Linux environment.
+
+As a superuser, with `GITHUB_URL` and `GITHUB_ACCESS_TOKEN` passed into the
+environment, you should be able to configure hubbard as a service using:
+
+```
+./register-hubbard-service
+```
+
+### Windows
+We have a binary for Windows, but we are ***actively seeking collaborators***
+for validating that the binary works, and for correctly registering with Windows.
 
 ## Usage
 
@@ -73,7 +101,8 @@ go run hubbard.go
 You should also commit your built binaries:
 
 ```
-./build
+# Running make will create binaries in ./pkg for each supported platform
+make
 ```
 
 Why are we committing build artifacts?

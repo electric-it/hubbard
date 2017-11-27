@@ -5,15 +5,15 @@
 set -x
 
 cd "$(dirname ${BASH_SOURCE[0]})"
-chmod +x ./hubbard
+cp ./pkg/linux-amd64/hubbard /usr/bin/hubbard
+chmod +x /usr/bin/hubbard
 useradd hubbard --password ""
-chown hubbard hubbard
-chgrp hubbard hubbard
+chown hubbard /usr/bin/hubbard
+chgrp hubbard /usr/bin/hubbard
 mkdir -p /etc/hubbard
 chgrp -R hubbard /etc/hubbard
 chown -R hubbard /etc/hubbard
-./hubbard configure --github-url=$GITHUB_URL --github-access-token=$GITHUB_ACCESS_TOKEN
-cp hubbard /usr/bin/hubbard
+hubbard configure --github-url=$GITHUB_URL --github-access-token=$GITHUB_ACCESS_TOKEN
 cp ./hubbard-service-def /etc/init.d/hubbard
 chmod +x /etc/init.d/hubbard
 update-rc.d hubbard defaults

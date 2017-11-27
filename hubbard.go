@@ -407,6 +407,7 @@ var RootCmd = &cobra.Command{
 	Short: "Hubbard is a proxy for handling authenticated interactions with a GitHub server",
 	Long:  `https://github.build.ge.com/SECC/hubbard`,
 	Run: func(cmd *cobra.Command, args []string) {
+		initConfig()
 		runService()
 	},
 }
