@@ -57,6 +57,9 @@ $ hubbard configure --github-url=$YOUR_GITHUB_URL --github-access-token=$YOUR_GI
 
 Hubbard will now run as a service in the background, registered via Brew Services.
 
+If you are not prompted to allow a particular port to open, you should
+consider running hubbard in the foreground instead using `hubbard run-fg`.
+
 ### Linux
 Hubbard is also designed to work as a service in a Linux environment.
 
