@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+	"runtime"
 
 	"github.com/cssivision/reverseproxy"
 	github "github.com/google/go-github/github"
@@ -349,6 +350,7 @@ func initConfig() {
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(home)
 	viper.AddConfigPath("/etc/hubbard")
+	viper.AddConfigPath("/usr/local/Cellar/hubbard")
 	viper.SetConfigName(".hubbard")
 
 	if err := viper.ReadInConfig(); err != nil {
@@ -369,6 +371,7 @@ var RunFgCmd = &cobra.Command{
 	},
 }
 
+// HubbardConfig maps github url and access token to YAML
 type HubbardConfig struct {
 	GithubURL         string `yaml:"GITHUB_URL"`
 	GithubAccessToken string `yaml:"GITHUB_ACCESS_TOKEN"`
@@ -397,7 +400,11 @@ var ConfigureCmd = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
-		ioutil.WriteFile("/etc/hubbard/.hubbard.yml", bytes, 0644)
+		if runtime.GOOS == "darwin" {
+			ioutil.WriteFile("/usr/local/Cellar/hubbard/.hubbard.yml", bytes, 0644)
+		} else {
+			ioutil.WriteFile("/etc/hubbard/.hubbard.yml", bytes, 0644)
+		}
 	},
 }
 
