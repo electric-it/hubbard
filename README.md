@@ -11,7 +11,7 @@ instances of GitHub: Enterprise.
 
 ## Configuration
 
-Set `GITHUB_URL` and `GITHUB_ACESS_TOKEN` before starting Hubbard.
+Set `GITHUB_URL` and `GITHUB_ACCESS_TOKEN` before starting Hubbard.
 
 The **Installation** section will provide guidelines for configuring
 a personal access token in GitHub.
