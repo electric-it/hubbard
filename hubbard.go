@@ -158,7 +158,6 @@ func (h *GithubHandler) DownloadReleaseAsset(ctx context.Context, owner string, 
 
 // HandleReleaseAssets will download an authenticated release asset using the GitHub API
 func (h *GithubHandler) HandleReleaseAssets(w http.ResponseWriter, r *http.Request) (bool, error) {
-	// https://github.build.ge.com/212595461/private_test/releases/download/1.0/private_test.tar.gz
 	// $1 is the version, $2 is the asset name
 	releaseRegex := regexp.MustCompile("/(?P<owner>[^/]+)/(?P<repo>[^/]+)/releases/download/(?P<tag>[^/]+)/(?P<assetName>.+)$")
 	if releaseRegex.MatchString(r.RequestURI) {
@@ -412,7 +411,7 @@ var ConfigureCmd = &cobra.Command{
 var RootCmd = &cobra.Command{
 	Use:   "Hubbard",
 	Short: "Hubbard is a proxy for handling authenticated interactions with a GitHub server",
-	Long:  `https://github.build.ge.com/SECC/hubbard`,
+	Long:  `https://github.com/electric-it/hubbard`,
 	Run: func(cmd *cobra.Command, args []string) {
 		initConfig()
 		runService()

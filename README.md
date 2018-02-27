@@ -17,7 +17,9 @@ The **Installation** section will provide guidelines for configuring
 a personal access token in GitHub.
 
 The GitHub URL is the URL of the GitHub instance you're working with.
-For instance, the build.GE GitHub URL is `https://github.build.ge.com`.
+If you're working with a private repo on GitHub, the value here would be
+`https://github.com`.
+
 
 You can also control the URL and access token by writing the values to
 `/etc/hubbard/.hubbard.yml`.
@@ -29,11 +31,11 @@ First, you will need an access key. Go to the **Settings** page of
 the GitHub instance you plan to work with. From there, you should be able to
 view your **Personal Access Tokens**:
 
-![Personal Access Token](https://github.build.ge.com/SECC/hubbard/blob/master/doc/personal_access_token.png)
+![Personal Access Token](https://github.com/electric-it/hubbard/blob/master/doc/personal_access_token.png)
 
 You can then choose to **Generate a New Token**:
 
-![Generate New Token](https://github.build.ge.com/SECC/hubbard/blob/master/doc/generate_new_token.png)
+![Generate New Token](https://github.com/electric-it/hubbard/blob/master/doc/generate_new_token.png)
 
 Select the permissions you believe are applicable. Once you've created the access
 token, you should record it in a text file or note so that you can use it for configuring
