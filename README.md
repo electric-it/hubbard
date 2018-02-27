@@ -42,25 +42,8 @@ token, you should record it in a text file or note so that you can use it for co
 Hubbard in the steps below.
 
 ### OS X
-```bash
-# Tap the keg
-$ brew tap secc/secc https://github.build.ge.com/SECC/homebrew-secc
-
-# Install Hubbard
-# Hubbard is a HEAD-only cookbook because we rely on authentication with GitHub
-$ brew install --HEAD hubbard
-```
-
-Homebrew will remind you to run the following:
-
-```bash
-$ hubbard configure --github-url=$YOUR_GITHUB_URL --github-access-token=$YOUR_GITHUB_ACCESS_TOKEN
-```
-
-Hubbard will now run as a service in the background, registered via Brew Services.
-
-If you need to debug hubbard, and see that it is not running,
-you can always run hubbard in the foreground using `hubbard run-fg`
+* Install the binary in `pkg/darwin-amd64/hubbard` into your `$PATH`
+* Configure your instance using `hubbard configure`
 
 ### Linux
 Hubbard is also designed to work as a service in a Linux environment.
